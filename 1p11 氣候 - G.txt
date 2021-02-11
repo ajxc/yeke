@@ -16,10 +16,10 @@
 天熱
 텬ᅀᅧ
 텬ᅀᅧᇹ
-天?[a][b]
+天熰
 텬ᄋᆕ
 텬ᅙᅳᇢ
-?[c]熱
+熰熱
 ᄋᆕᅀᅧ
 ᅙᅳᇢᅀᅧᇹ
 霧熱
@@ -42,7 +42,7 @@
 텬찡랴ᇢ
 害熱
 해ᅀᅧ
-ᅘᅢ셔ᇹ[d]
+ᅘᅢ[셔ᇹ ᅀᅧᇹ]
 害冷
 해릉
 ᅘᅢ릉
@@ -58,11 +58,6 @@
 向火
 향호
 향ᄒᅿ
-?[e]火
+[⿰火槀 ?]火
 ᄏᅶ호
 ᄏᅶᄒᅿ
-[a]火區
-[b]left side 火 and right side 區
-[c]火區
-[d]might be a mistake of the original work
-[e]left side 火, right side looks like 高 with a 木 below
