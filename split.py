@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # TODO: chapter titles
+# TODO: incorporate glosses
 
 # ZSH shell:
 # > ./split.py *.txt(n) | less
@@ -79,7 +80,7 @@ for book_n in books:
 				print(i + 1, lexical_item)
 		# find pages that are 'too short'
 		# subtract 2, as when there are two chapter titles on one page
-		if len(lexical_items) < p_max_item_count - 2:
+		elif len(lexical_items) < p_max_item_count - 2:
 			if book_n == 1 and p_n == 120:
 				continue
 			elif book_n == 1 and p_n == 140:
