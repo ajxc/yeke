@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: chapter titles
-# TODO: incorporate glosses
-
 # ZSH shell:
 # > ./split.py *.txt(n) | less
 
@@ -30,9 +27,18 @@ for file_path in file_paths:
 		ch_content = file.read()
 		ch_content = ch_content.strip()
 
-		# get book number and chapter page number from file name
-		m = re.search(r'(\d+)p(\d+)', file_path)
-		book_n, ch_p_n = int(m[1]), int(m[2])
+		# get from file name
+		# book number, chapter page number, chapter name
+		m = re.search(r'(\d+)p(\d+) ([^ .-]+)', file_path)
+		book_n, ch_p_n, ch_name = int(m[1]), int(m[2]), m[3]
+
+		# mark chapter beginning
+		ch_content = regex.sub(
+			r'#(?!\d)',
+			'BOCh' + ch_name + r'BOCh#',
+			ch_content,
+			count = 1
+		)
 
 		# individual pages
 		p_content_all = ch_content.split('\n\n')
@@ -43,11 +49,14 @@ for file_path in file_paths:
 			p_n = (int(m[1]) if m else ch_p_n)
 
 			# find lexical items
-			# add trailing newline for the newline at the end of group 3
-			# groups 2 and 3 are optional, see book 2 page 87
-			# group 4 is multiple, see book 1 page 35
+			# reading is optional, see book 2 page 87
+			# gloss is multiple, see book 1 page 4
 			lexical_items = regex.findall(
-				r'(.*\p{Script=Hani}.*\n)(?:(.*\p{Script=Hang}.*\n)(.*\p{Script=Hang}.*\n))?((?:○.+\n)*)',
+				r'(?:BOCh(.+)BOCh)?' + # 0 chapter name normalized
+				r'(#\d*)?' + # 1 header level
+				r'(.*\p{Script=Hani}.*\n)' + # 2 headword
+				r'(?:(.*\p{Script=Hang}.*\n)(.*\p{Script=Hang}.*\n))?' + # 3 4reading
+				r'((?:○.+\n)*)', # 5 gloss
 				p_content + '\n'
 			)
 
@@ -70,6 +79,8 @@ for book_n in books:
 	except FileExistsError:
 		pass
 
+	ch_name_previous = ''
+
 	for p_n in books[book_n]:
 		lexical_items = books[book_n][p_n]
 
@@ -78,7 +89,7 @@ for book_n in books:
 			print(f'b{book_n} p{p_n} too long: {len(lexical_items)}')
 			for i, lexical_item in enumerate(lexical_items):
 				print(i + 1, lexical_item)
-		# find pages that are 'too short'
+		# approximately find pages that are 'too short'
 		# subtract 2, as when there are two chapter titles on one page
 		elif len(lexical_items) < p_max_item_count - 2:
 			if book_n == 1 and p_n == 120:
@@ -95,11 +106,25 @@ for book_n in books:
 
 		with open(f'/tmp/{book_n}/{p_n}', 'w') as file:
 			for lexical_item in lexical_items:
-				file.write(';' + lexical_item[0])
+				if lexical_item[0] != '':
+					#print(ch_name_previous, lexical_item[0])
+					if ch_name_previous != '':
+						file.write('<section end="' + ch_name_previous + '" />')
+					file.write('<section begin="' + lexical_item[0] + '" />')
+					ch_name_previous = lexical_item[0]
+
 				if lexical_item[1] != '':
-					file.write(':' + lexical_item[1])
-				if lexical_item[2] != '':
-					file.write(':' + lexical_item[2])
+					header_level = lexical_item[1].replace('#', '') or 2
+					file.write(f'<h{header_level}>\n')
+
+				file.write(';' + lexical_item[2])
 				if lexical_item[3] != '':
-					for line in lexical_item[3].strip().split('\n'):
+					file.write(':' + lexical_item[3])
+				if lexical_item[4] != '':
+					file.write(':' + lexical_item[4])
+				if lexical_item[5] != '':
+					for line in lexical_item[5].strip().split('\n'):
 						file.write(':' + line + '\n')
+
+				if lexical_item[1] != '':
+					file.write(f'</h{header_level}>\n')
