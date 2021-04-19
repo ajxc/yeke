@@ -27,26 +27,80 @@ for file_path in file_paths:
 		ch_content = file.read()
 		ch_content = ch_content.strip()
 
-		# get from file name
+		# get things from file name:
 		# book number, chapter page number, chapter name
 		m = re.search(r'(\d+)p(\d+) ([^ .-]+)', file_path)
 		book_n, ch_p_n, ch_name = int(m[1]), int(m[2]), m[3]
 
 		# mark chapter beginning
-		ch_content = regex.sub(
+		ch_content = re.sub(
 			r'#(?!\d)',
 			'BOCh' + ch_name + r'BOCh#',
 			ch_content,
 			count = 1
 		)
 
-		# individual pages
+		# reformat note markup
+		# icheja: [真 眞*]
+		# write "ICHEJA" instead of "이체자" to avoid disrupting the regex below that detects reading by looking for hangeul
+		ch_content = regex.sub(
+			r'\[([^ \]]+) (\p{Script=Hani})\*\]',
+			r'{{ICHEJA|\1|\2}}',
+			ch_content
+		)
+		# icheja: 眞*
+		ch_content = regex.sub(
+			r'(\p{Script=Hani})\*',
+			r'{{ICHEJA|\1}}',
+			ch_content
+		)
+		# correction: [豬 豚]
+		ch_content = regex.sub(
+			r'\[(\p{Script=Hani}) (\p{Script=Hani})\]',
+			r'{{SIC|\1|\2}}',
+			ch_content
+		)
+		# correction: [쭈 쮸]
+		ch_content = regex.sub(
+			r'\[(\p{Script=Hang}+) (\p{Script=Hang}+)\]',
+			r'{{SIC|\1|\2}}',
+			ch_content
+		)
+		# correction: [화 sic]
+		ch_content = regex.sub(
+			r'\[(\p{Script=Hang}+) sic\]',
+			r'{{SIC|\1}}',
+			ch_content
+		)
+		# correction: [궈 illegible]
+		ch_content = regex.sub(
+			r'\[([^ \]]+) illegible\]',
+			r'{{reconstruct|\1}}',
+			ch_content
+		)
+		# correction: [녀 ?]
+		ch_content = regex.sub(
+			r'\[([^ \]]+) \?\]',
+			r'{{suspect|\1}}',
+			ch_content
+		)
+		# correction: [于 了?]
+		# technically Template:suspect does not have a second parameter
+		ch_content = regex.sub(
+			r'\[([^ \]]+) ([^]]+)\?\]',
+			r'{{suspect|\1|$2}}',
+			ch_content
+		)
+		# correction: [壯 狀 according to owner's annotation]
+		pass
+
+		# split into individual pages
 		p_content_all = ch_content.split('\n\n')
 
 		for p_content in p_content_all:
 			# get page number
-			m = re.search(r'p(\d+)', p_content)
-			p_n = (int(m[1]) if m else ch_p_n)
+			match = re.search(r'p(\d+)', p_content)
+			p_n = (int(match[1]) if match else ch_p_n)
 
 			# find lexical items
 			# reading is optional, see book 2 page 87
@@ -75,7 +129,7 @@ for file_path in file_paths:
 
 for book_n in books:
 	try:
-		os.mkdir(f'/tmp/{book_n}')
+		os.mkdir(f'/tmp/ysplit')
 	except FileExistsError:
 		pass
 
@@ -104,10 +158,20 @@ for book_n in books:
 			for i, lexical_item in enumerate(lexical_items):
 				print(i + 1, lexical_item)
 
-		with open(f'/tmp/{book_n}/{p_n}', 'w') as file:
+		with open(f'/tmp/ysplit/{book_n}p{p_n}', 'w') as file:
 			for lexical_item in lexical_items:
+				# final tidying
+				lexical_item = list(lexical_item) # TypeError: 'tuple' object does not support item assignment
+				for i, property in enumerate(lexical_item):
+					lexical_item[i] = lexical_item[i].replace('ICHEJA', '이체자')
+
 				if lexical_item[0] != '':
 					#print(ch_name_previous, lexical_item[0])
+
+					#
+					# WARNING: does not add section end to the final chapter of a book
+					#
+
 					if ch_name_previous != '':
 						file.write('<section end="' + ch_name_previous + '" />')
 					file.write('<section begin="' + lexical_item[0] + '" />')
