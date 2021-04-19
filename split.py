@@ -158,7 +158,7 @@ for book_n in books:
 			for i, lexical_item in enumerate(lexical_items):
 				print(i + 1, lexical_item)
 
-		with open(f'/tmp/ysplit/{book_n}p{p_n}', 'w') as file:
+		with open(f'/tmp/ysplit/{book_n}p{p_n}.txt', 'w') as file:
 			for lexical_item in lexical_items:
 				# final tidying
 				lexical_item = list(lexical_item) # TypeError: 'tuple' object does not support item assignment
