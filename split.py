@@ -88,7 +88,7 @@ for file_path in file_paths:
 		# technically Template:suspect does not have a second parameter
 		ch_content = regex.sub(
 			r'\[([^ \]]+) ([^]]+)\?\]',
-			r'{{suspect|\1|$2}}',
+			r'{{suspect|\1|\2}}',
 			ch_content
 		)
 		# correction: [壯 狀 according to owner's annotation]
