@@ -92,7 +92,14 @@ for file_path in file_paths:
 			ch_content
 		)
 		# correction: [壯 狀 according to owner's annotation]
+		# already converted into HTML comments
 		pass
+		# ditto marks
+		ch_content = regex.sub(
+			r'○,,',
+			r'○丨丨',
+			ch_content
+		)
 
 		# split into individual pages
 		p_content_all = ch_content.split('\n\n')
