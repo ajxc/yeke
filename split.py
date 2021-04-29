@@ -154,16 +154,17 @@ for book_n in books:
 		# subtract 2, as when there are two chapter titles on one page
 		elif len(lexical_items) < p_max_item_count - 2:
 			if book_n == 1 and p_n == 120:
-				continue
+				pass
 			elif book_n == 1 and p_n == 140:
-				continue
+				pass
 			elif book_n == 2 and p_n == 18:
-				continue
+				pass
 			elif book_n == 2 and p_n == 109:
-				continue
-			print(f'b{book_n} p{p_n} too short: {len(lexical_items)}')
-			for i, lexical_item in enumerate(lexical_items):
-				print(i + 1, lexical_item)
+				pass
+			else:
+				print(f'b{book_n} p{p_n} too short: {len(lexical_items)}')
+				for i, lexical_item in enumerate(lexical_items):
+					print(i + 1, lexical_item)
 
 		with open(f'/tmp/ysplit/{book_n}p{p_n}.txt', 'w') as file:
 			for lexical_item in lexical_items:
