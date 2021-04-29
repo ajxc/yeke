@@ -25,4 +25,4 @@ for file_path in file_paths:
 		page = Page(site, page_name)
 		page.text = p_content
 		page.save(f'Upload from {file_name}.')
-		input('[press enter to proceed to the next page]')
+		#input('[press enter to proceed to the next page]')
