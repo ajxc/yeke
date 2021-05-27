@@ -96,8 +96,8 @@ for file_path in file_paths:
 		pass
 		# ditto marks
 		ch_content = regex.sub(
-			r'○,,',
-			r'○丨丨',
+			r'○(,+|、+)',
+			lambda matchobj: '○' + '丨' * len(matchobj.group(1)),
 			ch_content
 		)
 
